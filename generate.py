@@ -49,6 +49,27 @@ def create_npz_from_sample_folder(sample_dir, num=50_000):
 
 
 def generate(args):
+
+
+
+
+
+
+    batch_per_worker=jax.local_device_count()*args.batch_per_core
+    iteration=math.ceil(args.num_samples/args.batch_per_core/jax.process_count())
+
+    b, c, h, w = batch_per_worker, 4, 32, 32
+
+
+    print(args.num_samples,args.batch_per_core/jax.process_count(),args.num_samples/args.batch_per_core/jax.process_count())
+
+    while True:
+        pass
+
+
+
+
+
     sample_folder_dir = f"test/JAX-SiT"
     os.makedirs(sample_folder_dir, exist_ok=True)
     print(f"Saving .png samples at {sample_folder_dir}")
@@ -85,10 +106,7 @@ def generate(args):
     rng=shard_prng_key(rng)
     total=0
 
-    batch_per_worker=jax.local_device_count()*args.batch_per_core
-    iteration=math.ceil(args.num_samples/args.batch_per_core/jax.process_count())
 
-    b, c, h, w = batch_per_worker, 4, 32, 32
 
     sampling_kwargs = dict(
         model=model_jax,
@@ -125,7 +143,7 @@ def generate(args):
             255. * samples, 0, 255
         ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
 
-
+        print(samples.shape)
         samples=process_allgather(samples)
         samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
         print(samples.shape)
@@ -148,6 +166,6 @@ if __name__=="__main__":
     parser.add_argument("--num-samples", type=int, default=50000)
     args = parser.parse_args()
 
-    jax.distributed.initialize()
+    # jax.distributed.initialize()
 
     generate(args)
