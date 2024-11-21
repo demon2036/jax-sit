@@ -86,7 +86,7 @@ def generate(args):
     total=0
 
     batch_per_worker=jax.local_device_count()*args.batch_per_core
-    iteration=math.ceil(args.num_samples/batch_per_worker)
+    iteration=math.ceil(args.num_samples/args.batch_per_core/jax.process_count())
 
     b, c, h, w = batch_per_worker, 4, 32, 32
 
