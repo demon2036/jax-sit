@@ -677,7 +677,7 @@ def torch_to_jax(torch_x):
 
 
 def jax_to_torch(jax_x):
-    return torch.from_numpy(np.array(jax_x)).cuda()
+    return torch.from_numpy(np.array(jax_x))
 
 
 def euler_maruyama_de_hacker_sampler(
