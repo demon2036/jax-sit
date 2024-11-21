@@ -127,6 +127,7 @@ def generate(args):
 
 
         samples=process_allgather(samples)
+        print(samples.shape)
 
         # Save samples to disk as individual .png files
 
@@ -142,10 +143,10 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     # seed
     parser.add_argument("--global-seed", type=int, default=0)
-    parser.add_argument("--batch-per-core", type=int, default=4)
+    parser.add_argument("--batch-per-core", type=int, default=8)
     parser.add_argument("--num-samples", type=int, default=50000)
     args = parser.parse_args()
 
-    # jax.distributed.initialize()
+    jax.distributed.initialize()
 
     generate(args)
