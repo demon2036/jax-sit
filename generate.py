@@ -53,7 +53,7 @@ def generate(args):
     os.makedirs(sample_folder_dir, exist_ok=True)
     print(f"Saving .png samples at {sample_folder_dir}")
 
-    vae_flax, vae_params = FlaxAutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-ema", local_files_only=True,
+    vae_flax, vae_params = FlaxAutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-ema", local_files_only=False,
                                                              local_dir='vae',
                                                              cache_dir='vae_flax', from_pt=True)
 
