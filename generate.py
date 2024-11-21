@@ -127,6 +127,7 @@ def generate(args):
 
 
         samples=process_allgather(samples)
+        samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
         print(samples.shape)
 
         # Save samples to disk as individual .png files
