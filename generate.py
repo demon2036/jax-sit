@@ -32,7 +32,7 @@ lock = threading.Lock()
 
 
 def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None, label=None, checkpointer=None):
-    multihost_utils.sync_global_devices()
+    multihost_utils.sync_global_devices('sync device')
     with lock:
         files = glob.glob('shard_path/*.tar')
         files.sort(key=lambda x: os.path.getctime(x), )
