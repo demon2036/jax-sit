@@ -89,7 +89,7 @@ def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None
 class CustomShardWriter(wds.ShardWriter):
 
 
-    def __init__(self,progress_count=jax.process_count(),*args,**kwargs):
+    def __init__(self,progress_count,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.progress_count=progress_count
 
@@ -236,7 +236,8 @@ def test_convert(args):
         maxcount=data_per_shard,
         maxsize=3e10,
         start_shard=jax.process_index(),
-        verbose=jax.process_index() == 0
+        verbose=jax.process_index() == 0,
+        progress_count=jax.process_count()
         # maxsize=shard_size,
     )
 
