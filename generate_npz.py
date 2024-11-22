@@ -59,7 +59,7 @@ def generate(args):
     b, c, h, w = batch_per_worker, 4, 32, 32
 
 
-    sample_folder_dir = f"/root/test/JAX-SiT-{args.step}"
+    sample_folder_dir = f"/root/test/JAX-SiT-{args.steps}"
     os.makedirs(sample_folder_dir, exist_ok=True)
     print(f"Saving .png samples at {sample_folder_dir}")
 
@@ -101,7 +101,7 @@ def generate(args):
         model=model_jax,
         # latents=z,
         # y=y,
-        num_steps=args.step,
+        num_steps=args.steps,
     )
 
     params_sit_jax = replicate(params_sit_jax)
