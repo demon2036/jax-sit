@@ -52,11 +52,6 @@ def create_npz_from_sample_folder(sample_dir, num=50_000):
 
 def generate(args):
 
-
-
-
-
-
     batch_per_worker=jax.local_device_count()*args.batch_per_core
 
     batch_per_all=args.batch_per_core*jax.device_count()
@@ -168,8 +163,8 @@ def generate(args):
                 Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
 
 
-        threading.Thread(target=thread_func,
-                         args=(samples_jax,total)).start()
+        # threading.Thread(target=thread_func,
+        #                  args=(samples_jax,total)).start()
 
         # if jax.process_index()==0:
         #     for i, sample in enumerate(samples):
