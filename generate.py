@@ -133,18 +133,21 @@ def generate(args):
             return img,new_rng
 
         samples_jax,rng = go(params_sit_jax, rng)
-        samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
 
-        samples_jax = jax_to_torch(samples_jax)
+        print(samples_jax.shape)
 
-        samples = samples_jax
-
-        samples = (samples + 1) / 2.
-        samples = torch.clamp(
-            255. * samples, 0, 255
-        ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
-
-        print(samples.shape)
+        # samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
+        #
+        # samples_jax = jax_to_torch(samples_jax)
+        #
+        # samples = samples_jax
+        #
+        # samples = (samples + 1) / 2.
+        # samples = torch.clamp(
+        #     255. * samples, 0, 255
+        # ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
+        #
+        # print(samples.shape)
     #     samples=process_allgather(samples)
     #     samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
     #     print(samples.shape)
