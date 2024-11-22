@@ -90,8 +90,9 @@ class CustomShardWriter(wds.ShardWriter):
 
 
     def __init__(self,progress_count,*args,**kwargs):
+        self.progress_count = progress_count
         super().__init__(*args,**kwargs)
-        self.progress_count=progress_count
+
 
     def next_stream(self):
         print('her is next stream')
