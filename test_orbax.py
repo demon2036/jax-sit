@@ -18,7 +18,7 @@ checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
 
 checkpointer.save('gs://roger-center-2b/test_orbax',{
     'rng':rng
-})
+},force=True)
 
 restore_rng=checkpointer.restore('gs://roger-center-2b/test_orbax')
 print(f'{restore_rng=}   {rng=}')
