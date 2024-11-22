@@ -14,7 +14,7 @@ rng=jax.random.PRNGKey(0)+jax.process_index()
 
 rng=shard_prng_key(rng)
 
-print(rng,rng.devices())
+
 
 @jax.pmap
 def go(rng):
@@ -23,7 +23,7 @@ def go(rng):
 
 rng=go(rng)
 
-
+print(rng,rng.devices())
 rng=fully_replicated_host_local_array_to_global_array(rng)
 
 
