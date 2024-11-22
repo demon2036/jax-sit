@@ -20,7 +20,7 @@ from flax.training.common_utils import shard, shard_prng_key
 
 from models_jax.convert_torch_to_jax import convert_torch_to_flax_sit
 from models_jax.sit import SiT
-from samplers_jax import euler_maruyama_sampler2, euler_maruyama_sampler3, jax_to_torch
+from samplers_jax import euler_maruyama_sampler2, euler_maruyama_sampler3, jax_to_torch, euler_maruyama_sampler4
 from utils import download_model
 from jax.experimental.multihost_utils import process_allgather
 
@@ -118,7 +118,7 @@ def generate(args):
 
     params_sit_jax = replicate(params_sit_jax)
     vae_params=replicate(vae_params)
-    sample_fn = functools.partial(euler_maruyama_sampler3, **sampling_kwargs)
+    sample_fn = functools.partial(euler_maruyama_sampler4, **sampling_kwargs)
     for _ in tqdm.tqdm(range(iteration)):
 
         @jax.pmap
