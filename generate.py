@@ -232,7 +232,7 @@ def test_convert(args):
     # iter_per_shard = data_per_shard // per_process_generate_data
 
     sink = CustomShardWriter(
-        shard_filename,
+        pattern=shard_filename,
         maxcount=data_per_shard,
         maxsize=3e10,
         start_shard=jax.process_index(),
