@@ -116,11 +116,12 @@ def generate(args):
     )
 
     params_sit_jax = replicate(params_sit_jax)
+    vae_params=replicate(vae_params)
     sample_fn = functools.partial(euler_maruyama_sampler3, **sampling_kwargs)
     for _ in tqdm.tqdm(range(iteration)):
 
         @jax.pmap
-        def go(model_params, rng):
+        def go(model_params, vae_params,rng):
             rng,new_rng,rng_label=jax.random.split(rng,3)
             z = jax.random.normal(rng, (args.batch_per_core, c, h, w))
 
@@ -132,7 +133,7 @@ def generate(args):
             img=vae_flax.apply({'params': vae_params}, latent, method=vae_flax.decode).sample
             return img,new_rng
 
-        samples_jax,rng = go(params_sit_jax, rng)
+        samples_jax,rng = go(params_sit_jax,vae_params, rng)
 
         print(go._cache_size)
 
