@@ -56,6 +56,9 @@ def generate(args):
 
 
     batch_per_worker=jax.local_device_count()*args.batch_per_core
+
+    batch_per_all=args.batch_per_core*jax.device_count()
+
     iteration=math.ceil(args.num_samples/args.batch_per_core/jax.device_count())
 
     b, c, h, w = batch_per_worker, 4, 32, 32
@@ -135,33 +138,36 @@ def generate(args):
 
         samples_jax,rng = go(params_sit_jax,vae_params, rng)
 
-        print(go._cache_size)
 
-        print(samples_jax.shape)
+        samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
 
-        # samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
-        #
-        # samples_jax = jax_to_torch(samples_jax)
-        #
-        # samples = samples_jax
-        #
-        # samples = (samples + 1) / 2.
-        # samples = torch.clamp(
-        #     255. * samples, 0, 255
-        # ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
-        #
-        # print(samples.shape)
-    #     samples=process_allgather(samples)
-    #     samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
-    #     print(samples.shape)
-    #
-    #     # Save samples to disk as individual .png files
-    #
-    #     if jax.process_index()==0:
-    #         for i, sample in enumerate(samples):
-    #             index = i+total
-    #             Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
-    #     total+=b
+        samples_jax = jax_to_torch(samples_jax)
+
+        samples = samples_jax
+
+        samples = (samples + 1) / 2.
+        samples = torch.clamp(
+            255. * samples, 0, 255
+        ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
+
+        print(samples.shape)
+        samples=process_allgather(samples)
+        samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
+        print(samples.shape)
+
+        # Save samples to disk as individual .png files
+
+        for i, sample in enumerate(samples):
+            index = i + total
+            Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
+
+        # if jax.process_index()==0:
+        #     for i, sample in enumerate(samples):
+        #         index = i+total
+        #         Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
+        total+=batch_per_all
+
+    create_npz_from_sample_folder(sample_folder_dir, total)
     # if jax.process_index() == 0:
     #     create_npz_from_sample_folder(sample_folder_dir,total)
 
@@ -169,7 +175,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     # seed
     parser.add_argument("--global-seed", type=int, default=0)
-    parser.add_argument("--batch-per-core", type=int, default=8)
+    parser.add_argument("--batch-per-core", type=int, default=64)
     parser.add_argument("--num-samples", type=int, default=50000)
     args = parser.parse_args()
 
