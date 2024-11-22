@@ -1,4 +1,5 @@
 import argparse
+import copy
 import functools
 import math
 import os
@@ -162,9 +163,9 @@ def generate(args):
                 index = i + total
                 Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
 
-
+        samples_jax_cpy=copy.deepcopy(samples_jax)
         threading.Thread(target=thread_func,
-                         args=(samples_jax,total)).start()
+                         args=(samples_jax_cpy,total)).start()
 
         # if jax.process_index()==0:
         #     for i, sample in enumerate(samples):
