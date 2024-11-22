@@ -134,6 +134,8 @@ def generate(args):
 
         samples_jax,rng = go(params_sit_jax, rng)
 
+        print(go._cache_size())
+
         print(samples_jax.shape)
 
         # samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
