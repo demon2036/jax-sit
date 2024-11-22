@@ -181,6 +181,9 @@ def test_convert(args):
                 if shard_idx!=sink.shard:
                     print(f'here is stop !!! {shard_idx=} {sink.shard=}')
 
+                    while True:
+                        pass
+
             if jax.process_index() == 0:
                 print(counter, images.shape)
 
