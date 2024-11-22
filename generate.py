@@ -161,10 +161,8 @@ def test_convert(args):
     lock = threading.Lock()
 
     def thread_write(images, class_labels, sink):
-        images = images * 255
-        # images = np.asarray(images, dtype=np.uint8)
         images = np.array(images).astype(np.uint8)
-        print(images.shape)
+        class_labels=np.array(class_labels)
 
         shard_idx=sink.shard
 
@@ -213,7 +211,8 @@ def test_convert(args):
         samples_jax,labels,rng = go(params_sit_jax,vae_params, rng)
 
         samples_jax=einops.rearrange(samples_jax,'n b c h w -> (n b) h w c')
-        print(samples_jax.shape)
+        labels = einops.rearrange(labels, 'n b  -> (n b) ')
+        print(samples_jax.shape,labels.shape)
 
         threading.Thread(target=thread_write,
                          args=(
