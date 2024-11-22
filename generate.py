@@ -18,6 +18,7 @@ from diffusers import FlaxAutoencoderKL
 from flax.jax_utils import replicate
 from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
+from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
 from webdataset import TarWriter
 
 from models_jax.convert_torch_to_jax import convert_torch_to_flax_sit
@@ -70,6 +71,7 @@ def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None
                 threading.Thread(target=send_data_thread, args=(file, f'{dst}/{base_name}')).start()
 
             if rng is not None:
+                rng = fully_replicated_host_local_array_to_global_array(rng)
                 ckpt = {
                     'rng': rng,
                     # 'sample_rng': sample_rng,
