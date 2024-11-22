@@ -54,21 +54,9 @@ def create_npz_from_sample_folder(sample_dir, num=50_000):
 def generate(args):
 
     batch_per_worker=jax.local_device_count()*args.batch_per_core
-
     batch_per_all=args.batch_per_core*jax.device_count()
-
     iteration=math.ceil(args.num_samples/args.batch_per_core/jax.device_count())
-
     b, c, h, w = batch_per_worker, 4, 32, 32
-
-
-    # print(args.num_samples,args.batch_per_core/jax.process_count(),args.num_samples/args.batch_per_core/jax.process_count())
-    #
-    # while True:
-    #     pass
-
-
-
 
 
     sample_folder_dir = f"/root/test/JAX-SiT"
@@ -176,9 +164,9 @@ def generate(args):
         total+=batch_per_all
 
 
-    while threading.active_count() > 2:
-        print(f'{threading.active_count()=}')
-        time.sleep(1)
+    # while threading.active_count() > 2:
+    #     print(f'{threading.active_count()=}')
+    #     time.sleep(1)
 
     create_npz_from_sample_folder(sample_folder_dir, total)
     # if jax.process_index() == 0:

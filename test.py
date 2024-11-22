@@ -24,4 +24,4 @@ def create_npz_from_sample_folder(sample_dir, num=50_000):
     print(f"Saved .npz file to {npz_path} [shape={samples.shape}].")
     return npz_path
 
-create_npz_from_sample_folder('test/JAX-SiT')
+create_npz_from_sample_folder('/root/test/JAX-SiT')
