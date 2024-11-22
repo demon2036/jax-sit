@@ -148,7 +148,7 @@ def test_convert(args):
         model=model_jax,
         # latents=z,
         # y=y,
-        num_steps=30,
+        num_steps=250,
     )
 
     params_sit_jax = replicate(params_sit_jax)
@@ -165,8 +165,8 @@ def test_convert(args):
         rng, new_rng, rng_label, rng_sample = jax.random.split(rng, 4)
         z = jax.random.normal(rng, (args.batch_per_core, c, h, w))
 
-        y = jax.random.randint(rng_label, (args.batch_per_core,), 0, 999, jnp.int32)
-        # y = jnp.full((b,), 2, jnp.int32)
+        # y = jax.random.randint(rng_label, (args.batch_per_core,), 0, 999, jnp.int32)
+        y = jnp.full((b,), 2, jnp.int32)
 
         samples_jax = sample_fn(model_params=model_params, latents=z, y=y, rng=rng_sample)
         latent = samples_jax / 0.18215
@@ -300,7 +300,7 @@ if __name__ == "__main__":
     # parser.add_argument("--seed", type=int, default=7)
     # parser.add_argument("--sample-seed", type=int, default=24)
     # parser.add_argument("--cfg", type=float, default=1.5)
-    parser.add_argument("--data-per-shard", type=int, default=8192)  #2048
+    parser.add_argument("--data-per-shard", type=int, default=1024)  #2048
     # parser.add_argument("--per-process-shards", type=int, default=400)
     # parser.add_argument("--per-device-batch", type=int, default=128)  #128
     # parser.add_argument("--resume",  action="store_true", default=False)
