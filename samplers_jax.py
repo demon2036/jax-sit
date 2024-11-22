@@ -766,3 +766,11 @@ def euler_maruyama_sampler4(
     mean_x = x_cur + dt * d_cur
 
     return mean_x
+
+
+def torch_to_jax(torch_x):
+    return jnp.array(torch_x.detach().cpu().numpy())
+
+
+def jax_to_torch(jax_x):
+    return torch.from_numpy(np.array(jax_x))
