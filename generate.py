@@ -171,7 +171,7 @@ def test_convert(args):
         z = jax.random.normal(rng, (args.batch_per_core, c, h, w))
 
         # y = jax.random.randint(rng_label, (args.batch_per_core,), 0, 999, jnp.int32)
-        y = jnp.full((bargs.batch_per_core,), 2, jnp.int32)
+        y = jnp.full((args.batch_per_core,), 2, jnp.int32)
 
         samples_jax = sample_fn(model_params=model_params, latents=z, y=y, rng=rng_sample)
         latent = samples_jax / 0.18215
