@@ -659,7 +659,7 @@ def euler_maruyama_sampler4(
         dt = t_next - t_cur
         x_cur = x_next
         diffusion = compute_diffusion(t_cur)
-        eps_i = jax.random.normal(jax.random.PRNGKey(rng), shape=x_cur.shape)
+        eps_i = jax.random.normal(rng, shape=x_cur.shape)
         deps = eps_i * jnp.sqrt(jnp.abs(dt))
 
 
