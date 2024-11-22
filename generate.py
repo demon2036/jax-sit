@@ -145,19 +145,19 @@ def generate(args):
         ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
 
         print(samples.shape)
-        samples=process_allgather(samples)
-        samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
-        print(samples.shape)
-
-        # Save samples to disk as individual .png files
-
-        if jax.process_index()==0:
-            for i, sample in enumerate(samples):
-                index = i+total
-                Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
-        total+=b
-    if jax.process_index() == 0:
-        create_npz_from_sample_folder(sample_folder_dir,total)
+    #     samples=process_allgather(samples)
+    #     samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
+    #     print(samples.shape)
+    #
+    #     # Save samples to disk as individual .png files
+    #
+    #     if jax.process_index()==0:
+    #         for i, sample in enumerate(samples):
+    #             index = i+total
+    #             Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
+    #     total+=b
+    # if jax.process_index() == 0:
+    #     create_npz_from_sample_folder(sample_folder_dir,total)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
