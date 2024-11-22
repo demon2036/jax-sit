@@ -78,24 +78,16 @@ def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None
                 save_args = orbax_utils.save_args_from_target(ckpt)
                 checkpointer.save(f'{dst}/resume.json', ckpt, save_args=save_args, force=True)
 
-
-
-
-
-
-
-
-
 class CustomShardWriter(wds.ShardWriter):
-
-
-    def __init__(self,progress_count,*args,**kwargs):
+    """
+    CustomShardWriter to make it suitable for increase shard counter step by  jax.process_count()
+    """
+    def __init__(self, progress_count, *args, **kwargs):
         self.progress_count = progress_count
-        super().__init__(*args,**kwargs)
-
+        super().__init__(*args, **kwargs)
 
     def next_stream(self):
-        print('her is next stream')
+        # print('her is next stream')
         """Close the current stream and move to the next."""
         self.finish()
         self.fname = self.pattern % self.shard
@@ -114,12 +106,10 @@ class CustomShardWriter(wds.ShardWriter):
 
 
 def test_convert(args):
-
-    batch_per_worker=jax.local_device_count()*args.batch_per_core
-    batch_per_all=args.batch_per_core*jax.device_count()
-    iteration=math.ceil(args.num_samples/args.batch_per_core/jax.device_count())
+    batch_per_worker = jax.local_device_count() * args.batch_per_core
+    batch_per_all = args.batch_per_core * jax.device_count()
+    iteration = math.ceil(args.num_samples / args.batch_per_core / jax.device_count())
     b, c, h, w = batch_per_worker, 4, 32, 32
-
 
     print(f'{threading.active_count()=}')
     # jax.distributed.initialize()
@@ -165,7 +155,6 @@ def test_convert(args):
     vae_params = replicate(vae_params)
     sample_fn = functools.partial(euler_maruyama_sampler4, **sampling_kwargs)
 
-
     shard_dir_path = Path('shard_path')
     shard_dir_path.mkdir(exist_ok=True)
     shard_filename = str(shard_dir_path / 'shards-%05d.tar')
@@ -185,18 +174,18 @@ def test_convert(args):
 
         img = (img + 1) / 2.
 
-        img=jnp.clip(img*255,0,255)
+        img = jnp.clip(img * 255, 0, 255)
 
-        return img,y, new_rng
+        return img, y, new_rng
 
     counter = 0
     lock = threading.Lock()
 
     def thread_write(images, class_labels, sink):
         images = np.array(images).astype(np.uint8)
-        class_labels=np.array(class_labels)
+        class_labels = np.array(class_labels)
 
-        shard_idx=sink.shard
+        shard_idx = sink.shard
 
         with lock:
             nonlocal counter
@@ -208,10 +197,6 @@ def test_convert(args):
                     "cls": int(cls_label),
                 })
                 counter += 1
-
-
-
-
 
                 # if shard_idx!=sink.shard:
                 #     print(f'here is stop !!! {shard_idx=} {sink.shard=}')
@@ -242,14 +227,10 @@ def test_convert(args):
         # maxsize=shard_size,
     )
 
-
-
-
-
     for _ in tqdm.tqdm(range(iteration)):
-        samples_jax,labels,rng = go(params_sit_jax,vae_params, rng)
+        samples_jax, labels, rng = go(params_sit_jax, vae_params, rng)
 
-        samples_jax=einops.rearrange(samples_jax,'n b c h w -> (n b) h w c')
+        samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
         labels = einops.rearrange(labels, 'n b  -> (n b) ')
         # print(samples_jax.shape,labels.shape)
 
@@ -257,12 +238,7 @@ def test_convert(args):
                          args=(
                              samples_jax, labels, sink,)).start()
 
-
-
         # send_file(3, args.output_dir, rng, sample_rng, label, checkpointer)
-
-
-
 
     """
     checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
@@ -282,8 +258,6 @@ def test_convert(args):
         start_label=ckpt['label']
         # print(ckpt)
     """
-
-
 
     """
 
@@ -315,7 +289,6 @@ abel in tqdm.trange()
     """
 
 
-
 if __name__ == "__main__":
     jax.distributed.initialize()
 
@@ -327,14 +300,13 @@ if __name__ == "__main__":
     # parser.add_argument("--seed", type=int, default=7)
     # parser.add_argument("--sample-seed", type=int, default=24)
     # parser.add_argument("--cfg", type=float, default=1.5)
-    parser.add_argument("--data-per-shard", type=int, default=1024)  #2048
+    parser.add_argument("--data-per-shard", type=int, default=8192)  #2048
     # parser.add_argument("--per-process-shards", type=int, default=400)
     # parser.add_argument("--per-device-batch", type=int, default=128)  #128
     # parser.add_argument("--resume",  action="store_true", default=False)
 
     parser.add_argument("--global-seed", type=int, default=0)
     parser.add_argument("--batch-per-core", type=int, default=64)
-    parser.add_argument("--num-samples", type=int, default=50000)
-
+    parser.add_argument("--num-samples", type=int, default=1000000)
 
     test_convert(parser.parse_args())
