@@ -4,6 +4,7 @@ import glob
 import math
 import os
 import threading
+import time
 from pathlib import Path
 
 import PIL
@@ -247,6 +248,18 @@ def test_convert(args):
 
         if (i+1)%iter_per_shard==0:
             send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
+
+    while threading.active_count() > 2:
+        print(f'{threading.active_count()=}')
+        time.sleep(1)
+    sink.close()
+    print('now send file')
+    send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
+    while threading.active_count() > 2:
+        print(f'{threading.active_count()=}')
+        time.sleep(1)
+
+
 
     """
     
