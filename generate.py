@@ -2,6 +2,8 @@ import argparse
 import functools
 import math
 import os
+import threading
+import time
 
 import einops
 import flax
@@ -139,33 +141,46 @@ def generate(args):
         samples_jax,rng = go(params_sit_jax,vae_params, rng)
 
 
-        samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
 
-        samples_jax = jax_to_torch(samples_jax)
+        def thread_func(samples_jax,total):
 
-        samples = samples_jax
 
-        samples = (samples + 1) / 2.
-        samples = torch.clamp(
-            255. * samples, 0, 255
-        ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
+            samples_jax=einops.rearrange(samples_jax,'n b c h w-> (n b) c h w')
 
-        print(samples.shape)
-        samples=process_allgather(samples)
-        samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
-        print(samples.shape)
+            samples_jax = jax_to_torch(samples_jax)
 
-        # Save samples to disk as individual .png files
+            samples = samples_jax
 
-        for i, sample in enumerate(samples):
-            index = i + total
-            Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
+            samples = (samples + 1) / 2.
+            samples = torch.clamp(
+                255. * samples, 0, 255
+            ).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()
+
+            print(samples.shape)
+            samples=process_allgather(samples)
+            samples =einops.rearrange(samples,'n b c h w-> (n b) c h w')
+            print(samples.shape)
+
+            # Save samples to disk as individual .png files
+
+            for i, sample in enumerate(samples):
+                index = i + total
+                Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
+
+
+            threading.Thread(target=thread_func,
+                             args=(samples_jax,total)).start()
 
         # if jax.process_index()==0:
         #     for i, sample in enumerate(samples):
         #         index = i+total
         #         Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
         total+=batch_per_all
+
+
+    while threading.active_count() > 2:
+        print(f'{threading.active_count()=}')
+        time.sleep(1)
 
     create_npz_from_sample_folder(sample_folder_dir, total)
     # if jax.process_index() == 0:
