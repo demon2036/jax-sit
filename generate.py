@@ -18,6 +18,7 @@ from diffusers import FlaxAutoencoderKL
 from flax.jax_utils import replicate
 from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
+from webdataset import TarWriter
 
 from models_jax.convert_torch_to_jax import convert_torch_to_flax_sit
 from models_jax.sit import SiT
@@ -79,6 +80,36 @@ def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None
 
 
 
+
+
+
+
+
+
+class CustomShardWriter(wds.ShardWriter):
+
+
+    def __init__(self,progress_count=jax.process_count(),*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.progress_count=progress_count
+
+    def next_stream(self):
+        print('her is next stream')
+        """Close the current stream and move to the next."""
+        self.finish()
+        self.fname = self.pattern % self.shard
+        if self.verbose:
+            print(
+                "# writing",
+                self.fname,
+                self.count,
+                "%.1f GB" % (self.size / 1e9),
+                self.total,
+            )
+        self.shard += self.progress_count
+        self.tarstream = TarWriter(self.fname, **self.kw)
+        self.count = 0
+        self.size = 0
 
 
 def test_convert(args):
@@ -179,19 +210,13 @@ def test_convert(args):
 
 
 
-                if sink.count+1 == sink.maxcount:
-                    print(f'here is stop !!! {shard_idx=} {sink.shard=}  {counter=} ' )
 
 
-                    while  True:
-                        pass
-
-
-                if shard_idx!=sink.shard:
-                    print(f'here is stop !!! {shard_idx=} {sink.shard=}')
-
-                    while True:
-                        pass
+                # if shard_idx!=sink.shard:
+                #     print(f'here is stop !!! {shard_idx=} {sink.shard=}')
+                #
+                #     while True:
+                #         pass
 
             if jax.process_index() == 0:
                 print(counter, images.shape)
@@ -206,7 +231,7 @@ def test_convert(args):
     # assert data_per_shard % per_process_generate_data == 0
     # iter_per_shard = data_per_shard // per_process_generate_data
 
-    sink = wds.ShardWriter(
+    sink = CustomShardWriter(
         shard_filename,
         maxcount=data_per_shard,
         maxsize=3e10,
