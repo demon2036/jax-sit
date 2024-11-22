@@ -178,6 +178,15 @@ def test_convert(args):
                 counter += 1
 
 
+
+                if sink.count+1 == sink.maxcount:
+                    print(f'here is stop !!! {shard_idx=} {sink.shard=}  {counter=} ' )
+
+
+                    while  True:
+                        pass
+
+
                 if shard_idx!=sink.shard:
                     print(f'here is stop !!! {shard_idx=} {sink.shard=}')
 
@@ -215,7 +224,7 @@ def test_convert(args):
 
         samples_jax=einops.rearrange(samples_jax,'n b c h w -> (n b) h w c')
         labels = einops.rearrange(labels, 'n b  -> (n b) ')
-        print(samples_jax.shape,labels.shape)
+        # print(samples_jax.shape,labels.shape)
 
         threading.Thread(target=thread_write,
                          args=(
