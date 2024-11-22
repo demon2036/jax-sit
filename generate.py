@@ -24,6 +24,7 @@ from models_jax.convert_torch_to_jax import convert_torch_to_flax_sit
 from models_jax.sit import SiT
 from samplers_jax import euler_maruyama_sampler4
 from utils import download_model
+import orbax.checkpoint as ocp
 
 lock = threading.Lock()
 
@@ -71,7 +72,7 @@ def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None
             if rng is not None:
                 ckpt = {
                     'rng': rng,
-                    'sample_rng': sample_rng,
+                    # 'sample_rng': sample_rng,
                     'label': label - keep_files
                 }
                 # orbax_checkpointer = ocp.PyTreeCheckpointer()
@@ -227,7 +228,11 @@ def test_convert(args):
         # maxsize=shard_size,
     )
 
-    for _ in tqdm.tqdm(range(iteration)):
+    checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
+
+
+
+    for i in tqdm.tqdm(range(iteration)):
         samples_jax, labels, rng = go(params_sit_jax, vae_params, rng)
 
         samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
@@ -238,10 +243,10 @@ def test_convert(args):
                          args=(
                              samples_jax, labels, sink,)).start()
 
-        # send_file(3, args.output_dir, rng, sample_rng, label, checkpointer)
+        send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
 
     """
-    checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
+    
     start_label=0
     if args.resume:
         dst = args.output_dir + '/' + 'resume.json'
@@ -296,7 +301,7 @@ if __name__ == "__main__":
     # parser.add_argument("--output-dir", default="shard_path2")
     # parser.add_argument("--output-dir", default="gs://shadow-center-2b/imagenet-generated-100steps-cfg1.75")
 
-    # parser.add_argument("--output-dir", default="gs://brid-center-2b/imagenet-generated-100steps-cfg1.5-eta0.0")
+    parser.add_argument("--output-dir", default="gs://roger-center-2b/imagenet-generated-sit-250steps")
     # parser.add_argument("--seed", type=int, default=7)
     # parser.add_argument("--sample-seed", type=int, default=24)
     # parser.add_argument("--cfg", type=float, default=1.5)
