@@ -59,7 +59,7 @@ def generate(args):
     b, c, h, w = batch_per_worker, 4, 32, 32
 
 
-    sample_folder_dir = f"/root/test/JAX-SiT"
+    sample_folder_dir = f"/root/test/JAX-SiT-{args.step}"
     os.makedirs(sample_folder_dir, exist_ok=True)
     print(f"Saving .png samples at {sample_folder_dir}")
 
@@ -101,7 +101,7 @@ def generate(args):
         model=model_jax,
         # latents=z,
         # y=y,
-        num_steps=250,
+        num_steps=args.step,
     )
 
     params_sit_jax = replicate(params_sit_jax)
@@ -176,6 +176,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     # seed
     parser.add_argument("--global-seed", type=int, default=0)
+    parser.add_argument("--steps", type=int, default=100)
     parser.add_argument("--batch-per-core", type=int, default=64)
     parser.add_argument("--num-samples", type=int, default=50000)
     args = parser.parse_args()
