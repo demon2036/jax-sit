@@ -189,9 +189,6 @@ def test_convert(args):
     def thread_write(images, class_labels, sink):
         images = np.array(images).astype(np.uint8)
         class_labels = np.array(class_labels)
-
-        shard_idx = sink.shard
-
         with lock:
             nonlocal counter
 
@@ -218,9 +215,9 @@ def test_convert(args):
             # thread_send()
 
     data_per_shard = args.data_per_shard
-    # per_process_generate_data = b * jax.local_device_count()
-    # assert data_per_shard % per_process_generate_data == 0
-    # iter_per_shard = data_per_shard // per_process_generate_data
+    per_process_generate_data = args.batch_per_core * jax.local_device_count()
+    assert data_per_shard % per_process_generate_data == 0
+    iter_per_shard = data_per_shard // per_process_generate_data
 
     sink = CustomShardWriter(
         pattern=shard_filename,
@@ -247,7 +244,9 @@ def test_convert(args):
                          args=(
                              samples_jax, labels, sink,)).start()
 
-        send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
+
+        if (i+1)%iter_per_shard==0:
+            send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
 
     """
     
