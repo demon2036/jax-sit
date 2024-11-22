@@ -5,6 +5,7 @@ import numpy as np
 import tqdm
 from PIL import Image
 import orbax.checkpoint as ocp
+from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
 from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
 
@@ -30,12 +31,26 @@ rng=fully_replicated_host_local_array_to_global_array(rng)
 
 checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
 
+ckpt = {
+    'rng': rng,
+}
+# orbax_checkpointer = ocp.PyTreeCheckpointer()
+save_args = orbax_utils.save_args_from_target(ckpt)
+checkpointer.save('gs://roger-center-2b/test_orbax', ckpt, save_args=save_args, force=True)
 
 
-checkpointer.save('gs://roger-center-2b/test_orbax',{
-    'rng':rng
-},force=True)
 
-restore_rng=checkpointer.restore('gs://roger-center-2b/test_orbax')
+ckpt=checkpointer.restore('gs://roger-center-2b/test_orbax',item=ckpt)
+restore_rng=ckpt['rng']
+
 print(f'{restore_rng=}   {rng=}')
+
+
+if jax.process_index()==0:
+    print('\n'*5)
+
+    print(f'{restore_rng=}   {rng=}')
+
+    print('\n'*5)
+
 
