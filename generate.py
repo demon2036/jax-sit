@@ -163,8 +163,8 @@ def generate(args):
                 Image.fromarray(sample).save(f"{sample_folder_dir}/{index:06d}.png")
 
 
-        # threading.Thread(target=thread_func,
-        #                  args=(samples_jax,total)).start()
+        threading.Thread(target=thread_func,
+                         args=(samples_jax,total)).start()
 
         # if jax.process_index()==0:
         #     for i, sample in enumerate(samples):
