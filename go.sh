@@ -11,8 +11,8 @@ for script in "${SCRIPT_PATHS[@]}"; do
     source ~/miniconda3/bin/activate base;
 #    python -u test.py
 
-#    python -u test_orbax.py
-    python -u generate.py
+    python -u test_orbax.py
+#    python -u generate.py
 
 
 #    python -u main.py --yaml-path $script

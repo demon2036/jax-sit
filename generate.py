@@ -18,6 +18,7 @@ from diffusers import FlaxAutoencoderKL
 from flax.jax_utils import replicate
 from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
+from jax.experimental import multihost_utils
 from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
 from webdataset import TarWriter
 
@@ -31,6 +32,7 @@ lock = threading.Lock()
 
 
 def send_file(keep_files=2, remote_path='shard_path2', rng=None, sample_rng=None, label=None, checkpointer=None):
+    multihost_utils.sync_global_devices()
     with lock:
         files = glob.glob('shard_path/*.tar')
         files.sort(key=lambda x: os.path.getctime(x), )

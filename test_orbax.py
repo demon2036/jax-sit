@@ -1,4 +1,6 @@
 import os
+import time
+from os import times
 
 import jax
 import numpy as np
@@ -7,10 +9,19 @@ from PIL import Image
 import orbax.checkpoint as ocp
 from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
+from jax.experimental import multihost_utils
 from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
 
 jax.distributed.initialize()
 
+
+time.sleep(jax.process_index())
+
+multihost_utils.sync_global_devices()
+
+print(jax.process_index())
+
+"""
 rng=jax.random.PRNGKey(0)+jax.process_index()
 
 rng=shard_prng_key(rng)
@@ -59,4 +70,4 @@ if jax.process_index()==0:
 
     print('\n'*5)
 
-
+"""
