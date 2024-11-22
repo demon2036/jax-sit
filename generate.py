@@ -153,7 +153,7 @@ def test_convert(args):
         model=model_jax,
         # latents=z,
         # y=y,
-        num_steps=250,
+        num_steps=30,
     )
 
     params_sit_jax = replicate(params_sit_jax)
