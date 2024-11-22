@@ -24,9 +24,13 @@ def go(rng):
 
 rng=go(rng)
 
-print(rng,rng.devices())
-rng=fully_replicated_host_local_array_to_global_array(rng)
 
+rng=fully_replicated_host_local_array_to_global_array(rng)
+print(rng,rng.devices())
+
+
+while True:
+    pass
 
 
 checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
