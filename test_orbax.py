@@ -17,7 +17,7 @@ jax.distributed.initialize()
 
 time.sleep(jax.process_index())
 
-multihost_utils.sync_global_devices()
+multihost_utils.sync_global_devices('sync device')
 
 print(jax.process_index())
 
