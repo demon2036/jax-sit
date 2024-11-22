@@ -26,7 +26,9 @@ rng=go(rng)
 
 
 rng=fully_replicated_host_local_array_to_global_array(rng)
-print(rng,rng.devices())
+
+if jax.process_index()==0:
+    print(rng,rng.devices())
 
 
 while True:
