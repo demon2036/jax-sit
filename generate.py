@@ -123,13 +123,13 @@ def generate(args):
 
         @jax.pmap
         def go(model_params, vae_params,rng):
-            rng,new_rng,rng_label=jax.random.split(rng,3)
+            rng,new_rng,rng_label,rng_sample=jax.random.split(rng,4)
             z = jax.random.normal(rng, (args.batch_per_core, c, h, w))
 
             y = jax.random.randint(rng_label,(args.batch_per_core,),0,999,  jnp.int32)
             # y = jnp.full((b,), 2, jnp.int32)
 
-            samples_jax = sample_fn(model_params=model_params, latents=z, y=y)
+            samples_jax = sample_fn(model_params=model_params, latents=z, y=y,rng=rng_sample)
             latent = samples_jax / 0.18215
             img=vae_flax.apply({'params': vae_params}, latent, method=vae_flax.decode).sample
             return img,new_rng
