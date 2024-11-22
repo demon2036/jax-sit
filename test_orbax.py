@@ -5,10 +5,14 @@ import numpy as np
 import tqdm
 from PIL import Image
 import orbax.checkpoint as ocp
+from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
 
 jax.distributed.initialize()
 
 rng=jax.random.PRNGKey(0)+jax.process_index()
+
+
+rng=fully_replicated_host_local_array_to_global_array(rng)
 
 print(rng)
 
