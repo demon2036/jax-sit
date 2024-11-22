@@ -124,7 +124,7 @@ def generate(args):
             rng,new_rng,rng_label=jax.random.split(rng,3)
             z = jax.random.normal(rng, (args.batch_per_core, c, h, w))
 
-            y = jax.random.normal(rng_label,(args.batch_per_core,),  jnp.int32)
+            y = jax.random.randint(rng_label,(args.batch_per_core,),0,999,  jnp.int32)
             # y = jnp.full((b,), 2, jnp.int32)
 
             samples_jax = sample_fn(model_params=model_params, latents=z, y=y)
