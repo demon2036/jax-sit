@@ -75,7 +75,7 @@ def generate(args):
 
 
 
-    sample_folder_dir = f"test/JAX-SiT"
+    sample_folder_dir = f"/root/test/JAX-SiT"
     os.makedirs(sample_folder_dir, exist_ok=True)
     print(f"Saving .png samples at {sample_folder_dir}")
 
