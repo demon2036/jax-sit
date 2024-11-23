@@ -126,6 +126,9 @@ def test_convert(args):
 
     vae_params = jax.tree_util.tree_map(lambda x: jnp.asarray(np.array(x)), vae_params)
 
+    print(f'{threading.active_count()=}')
+
+
     model_kwargs = {
         'input_size': 32,
         'patch_size': 2,
@@ -140,6 +143,8 @@ def test_convert(args):
     model_jax = SiT(**model_kwargs)
 
     state_dict = download_model('last.pt')
+
+    print(f'{threading.active_count()=}')
 
     params_torch = {k: v.cpu().numpy() for k, v in state_dict.items()}
     params_torch = flax.traverse_util.unflatten_dict(params_torch, sep=".")
