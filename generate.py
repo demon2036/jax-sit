@@ -120,7 +120,6 @@ def create_state():
                                                              cache_dir='vae_flax', from_pt=True)
 
     vae_params = jax.tree_util.tree_map(lambda x: jnp.asarray(np.array(x)), vae_params)
-    print(f'this is two {threading.active_count()=}')
 
     model_kwargs = {
         'input_size': 32,
@@ -257,7 +256,6 @@ def test_convert(args):
 
         samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
         labels = einops.rearrange(labels, 'n b  -> (n b) ')
-        # print(samples_jax.shape,labels.shape)
 
         threading.Thread(target=thread_write,
                          args=(
