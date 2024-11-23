@@ -111,23 +111,16 @@ class CustomShardWriter(wds.ShardWriter):
         self.size = 0
 
 
-def test_convert(args):
-    batch_per_worker = jax.local_device_count() * args.batch_per_core
-    batch_per_all = args.batch_per_core * jax.device_count()
-    iteration = math.ceil(args.num_samples / args.batch_per_core / jax.device_count())
-    b, c, h, w = batch_per_worker, 4, 32, 32
 
-    print(f'{threading.active_count()=}')
-    # jax.distributed.initialize()
 
+
+def create_state():
     vae_flax, vae_params = FlaxAutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-ema", local_files_only=False,
                                                              local_dir='vae',
                                                              cache_dir='vae_flax', from_pt=True)
 
     vae_params = jax.tree_util.tree_map(lambda x: jnp.asarray(np.array(x)), vae_params)
-
-    print(f'{threading.active_count()=}')
-
+    print(f'this is two {threading.active_count()=}')
 
     model_kwargs = {
         'input_size': 32,
@@ -144,12 +137,35 @@ def test_convert(args):
 
     state_dict = download_model('last.pt')
 
-    print(f'{threading.active_count()=}')
-
     params_torch = {k: v.cpu().numpy() for k, v in state_dict.items()}
     params_torch = flax.traverse_util.unflatten_dict(params_torch, sep=".")
 
     params_sit_jax = convert_torch_to_flax_sit(params_torch)
+
+
+    return vae_flax,vae_params,model_jax,params_sit_jax
+
+
+
+
+
+
+def test_convert(args):
+    batch_per_worker = jax.local_device_count() * args.batch_per_core
+    batch_per_all = args.batch_per_core * jax.device_count()
+    iteration = math.ceil(args.num_samples / args.batch_per_core / jax.device_count())
+    b, c, h, w = batch_per_worker, 4, 32, 32
+
+    print(f'{threading.active_count()=}')
+    # jax.distributed.initialize()
+
+    vae_flax, vae_params, model_jax, params_sit_jax=create_state()
+
+
+
+    print(f'this is 3 {threading.active_count()=}')
+
+
 
     rng = jax.random.PRNGKey(args.global_seed) + jax.process_index()
     rng = shard_prng_key(rng)
