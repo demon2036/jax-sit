@@ -171,8 +171,6 @@ def test_convert(args):
     rng = shard_prng_key(rng)
     total = 0
 
-    """
-
     sampling_kwargs = dict(
         model=model_jax,
         # latents=z,
@@ -244,37 +242,39 @@ def test_convert(args):
     )
 
     checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
-    """
+
+    ckpt = {
+        'rng': rng,
+        'label': 1
+    }
+    ckpt = checkpointer.restore(args.output_dir, item=ckpt)
+    rng = ckpt['rng']
+    start_label = ckpt['label']
 
 
-    # for i in tqdm.tqdm(range(iteration)):
-    #     samples_jax, labels, rng = go(params_sit_jax, vae_params, rng)
-    #
-    #     samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
-    #     labels = einops.rearrange(labels, 'n b  -> (n b) ')
-    #     # print(samples_jax.shape,labels.shape)
-    #
-    #     threading.Thread(target=thread_write,
-    #                      args=(
-    #                          samples_jax, labels, sink,)).start()
-    #
-    #
-    #     if (i+1)%iter_per_shard==0:
-    #         send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
-    print(f'{threading.active_count()=}   {threading.enumerate()=} ')
-    while threading.active_count() > 2:
+    for i in tqdm.tqdm(range(start_label,iteration)):
+        samples_jax, labels, rng = go(params_sit_jax, vae_params, rng)
+
+        samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
+        labels = einops.rearrange(labels, 'n b  -> (n b) ')
+        # print(samples_jax.shape,labels.shape)
+
+        threading.Thread(target=thread_write,
+                         args=(
+                             samples_jax, labels, sink,)).start()
+
+
+        if (i+1)%iter_per_shard==0:
+            send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
+
+
+    while threading.active_count() > 3:
         print(f'{threading.active_count()=}')
         time.sleep(1)
 
-
-    while True:
-        pass
-
-
-    sink.close()
     print('now send file')
     send_file(0, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
-    while threading.active_count() > 2:
+    while threading.active_count() > 3:
         print(f'{threading.active_count()=}')
         time.sleep(1)
 
