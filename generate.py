@@ -184,6 +184,8 @@ def test_convert(args):
 
         return img, y, new_rng
 
+    """
+
     counter = 0
     lock = threading.Lock()
 
@@ -200,20 +202,8 @@ def test_convert(args):
                     "cls": int(cls_label),
                 })
                 counter += 1
-
-                # if shard_idx!=sink.shard:
-                #     print(f'here is stop !!! {shard_idx=} {sink.shard=}')
-                #
-                #     while True:
-                #         pass
-
             if jax.process_index() == 0:
                 print(counter, images.shape)
-
-            # if send_file:
-            #     sink.shard = jax.process_index() + (label + 1) * jax.process_count()
-            # sink.next_stream()
-            # thread_send()
 
     data_per_shard = args.data_per_shard
     per_process_generate_data = args.batch_per_core * jax.local_device_count()
@@ -231,7 +221,7 @@ def test_convert(args):
     )
 
     checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
-
+    """
 
 
     # for i in tqdm.tqdm(range(iteration)):
@@ -248,7 +238,7 @@ def test_convert(args):
     #
     #     if (i+1)%iter_per_shard==0:
     #         send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
-    print(f'{threading.active_count()=}')
+    print(f'{threading.active_count()=}   {threading.enumerate()=} ')
     while threading.active_count() > 2:
         print(f'{threading.active_count()=}')
         time.sleep(1)
