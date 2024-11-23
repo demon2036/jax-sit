@@ -150,6 +150,8 @@ def test_convert(args):
     rng = shard_prng_key(rng)
     total = 0
 
+    """
+
     sampling_kwargs = dict(
         model=model_jax,
         # latents=z,
@@ -165,7 +167,7 @@ def test_convert(args):
     shard_dir_path.mkdir(exist_ok=True)
     shard_filename = str(shard_dir_path / 'shards-%05d.tar')
     print(shard_filename)
-
+    
     @jax.pmap
     def go(model_params, vae_params, rng):
         rng, new_rng, rng_label, rng_sample = jax.random.split(rng, 4)
@@ -184,7 +186,7 @@ def test_convert(args):
 
         return img, y, new_rng
 
-    """
+   
 
     counter = 0
     lock = threading.Lock()
