@@ -179,7 +179,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     # seed
     parser.add_argument("--global-seed", type=int, default=0)
-    parser.add_argument("--steps", type=int, default=100)
+    parser.add_argument("--steps", type=int, default=50)
     parser.add_argument("--batch-per-core", type=int, default=64)
     parser.add_argument("--num-samples", type=int, default=50000)
     args = parser.parse_args()
