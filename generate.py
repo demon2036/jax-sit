@@ -21,6 +21,7 @@ from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
 from jax.experimental import multihost_utils
 from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
+from transformers.models.pop2piano.convert_pop2piano_weights_to_hf import state_dict
 from webdataset import TarWriter
 
 from models_jax.convert_torch_to_jax import convert_torch_to_flax_sit
@@ -242,13 +243,14 @@ def test_convert(args):
 
     checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
 
-    ckpt = {
-        'rng': rng,
-        'label': 1
-    }
-    ckpt = checkpointer.restore(args.output_dir, item=ckpt)
-    rng = ckpt['rng']
-    start_label = ckpt['label']
+    # ckpt = {
+    #     'rng': rng,
+    #     'label': 1
+    # }
+    # ckpt = checkpointer.restore(args.output_dir, item=ckpt)
+    # rng = ckpt['rng']
+    # start_label = ckpt['label']
+    start_label=0
 
 
     for i in tqdm.tqdm(range(start_label,iteration)):
@@ -334,7 +336,7 @@ if __name__ == "__main__":
     # parser.add_argument("--output-dir", default="shard_path2")
     # parser.add_argument("--output-dir", default="gs://shadow-center-2b/imagenet-generated-100steps-cfg1.75")
 
-    parser.add_argument("--output-dir", default="gs://roger-center-2b/imagenet-generated-sit-250steps")
+    parser.add_argument("--output-dir", default="gs://musk-center-2b/imagenet-generated-sit-250steps-50m")
     # parser.add_argument("--seed", type=int, default=7)
     # parser.add_argument("--sample-seed", type=int, default=24)
     # parser.add_argument("--cfg", type=float, default=1.5)
@@ -345,6 +347,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--global-seed", type=int, default=0)
     parser.add_argument("--batch-per-core", type=int, default=64)
-    parser.add_argument("--num-samples", type=int, default=10000000)
+    parser.add_argument("--num-samples", type=int, default=50000000)
 
     test_convert(parser.parse_args())
