@@ -13,6 +13,7 @@ import flax
 import jax
 import jax.numpy as jnp
 import numpy as np
+import orbax.checkpoint as ocp
 import tqdm
 import webdataset as wds
 from diffusers import FlaxAutoencoderKL
@@ -21,14 +22,12 @@ from flax.training import orbax_utils
 from flax.training.common_utils import shard_prng_key
 from jax.experimental import multihost_utils
 from orbax.checkpoint.utils import fully_replicated_host_local_array_to_global_array
-from transformers.models.pop2piano.convert_pop2piano_weights_to_hf import state_dict
 from webdataset import TarWriter
 
 from models_jax.convert_torch_to_jax import convert_torch_to_flax_sit
 from models_jax.sit import SiT
 from samplers_jax import euler_maruyama_sampler4
 from utils import download_model
-import orbax.checkpoint as ocp
 
 lock = threading.Lock()
 
