@@ -251,6 +251,8 @@ def test_convert(args):
     # start_label = ckpt['label']
     start_label=0
 
+    thread_writes=[]
+
 
     for i in tqdm.tqdm(range(start_label,iteration)):
         samples_jax, labels, rng = go(params_sit_jax, vae_params, rng)
@@ -258,13 +260,21 @@ def test_convert(args):
         samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
         labels = einops.rearrange(labels, 'n b  -> (n b) ')
 
-        threading.Thread(target=thread_write,
-                         args=(
-                             samples_jax, labels, sink,)).start()
-
-
-        if (i+1)%iter_per_shard==0:
+        if (i + 1) % iter_per_shard == 0:
+            for thread in thread_writes:
+                thread.join()
+            thread_writes = []
             send_file(3, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
+
+
+        thread=threading.Thread(target=thread_write,
+                         args=(
+                             samples_jax, labels, sink,))
+        thread.start()
+
+
+
+
 
 
     while threading.active_count() > 3:
@@ -287,7 +297,7 @@ if __name__ == "__main__":
     # parser.add_argument("--output-dir", default="shard_path2")
     # parser.add_argument("--output-dir", default="gs://shadow-center-2b/imagenet-generated-100steps-cfg1.75")
 
-    parser.add_argument("--output-dir", default="gs://musk-center-2b/imagenet-generated-sit-250steps-50m")
+    parser.add_argument("--output-dir", default="gs://arm-central-2b/imagenet-generated-sit-250steps-50m")
     # parser.add_argument("--seed", type=int, default=7)
     # parser.add_argument("--sample-seed", type=int, default=24)
     # parser.add_argument("--cfg", type=float, default=1.5)
