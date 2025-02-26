@@ -13,6 +13,8 @@ import math
 from timm.models.vision_transformer import PatchEmbed, Attention, Mlp
 
 
+
+
 def build_mlp(hidden_size, projector_dim, z_dim):
     return nn.Sequential(
                 nn.Linear(hidden_size, projector_dim),

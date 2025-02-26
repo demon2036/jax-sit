@@ -191,7 +191,7 @@ def test_convert(args):
         rng, new_rng, rng_label, rng_sample = jax.random.split(rng, 4)
         z = jax.random.normal(rng, (args.batch_per_core, c, h, w))
 
-        y = jax.random.randint(rng_label, (args.batch_per_core,), 0, 999, jnp.int32)
+        y = jax.random.randint(rng_label, (args.batch_per_core,), 0, 1000, jnp.int32)
         # y = jnp.full((args.batch_per_core,), 2, jnp.int32)
 
         samples_jax = sample_fn(model_params=model_params, latents=z, y=y, rng=rng_sample)
@@ -279,54 +279,6 @@ def test_convert(args):
 
 
 
-    """
-    
-    start_label=0
-    if args.resume:
-        dst = args.output_dir + '/' + 'resume.json'
-        if 'gs' not in dst:
-            dst = os.getcwd() + '/' + dst
-        ckpt = {
-            'rng': rng,
-            'sample_rng': sample_rng,
-            'label': 1
-        }
-        ckpt = checkpointer.restore(dst, item=ckpt)
-        rng = ckpt['rng']
-        sample_rng = ckpt['sample_rng']
-        start_label=ckpt['label']
-        # print(ckpt)
-    """
-
-    """
-
-abel in tqdm.trange()
-    for label in range(start_label, args.per_process_shards):
-        print(label)
-
-        for i in tqdm.tqdm(range(iter_per_shard), disable=not jax.process_index() == 0):
-            rng, sample_rng, images, class_labels = test_sharding_jit(rng, sample_rng, converted_jax_params, vae_params,
-                                                                      label)
-
-            local_images = collect_process_data(images)
-            local_class_labels = collect_process_data(class_labels)
-            threading.Thread(target=thread_write,
-                             args=(
-                                 local_images, local_class_labels, sink, label,
-                                 True if i == iter_per_shard - 1 else False)).start()
-        send_file(3, args.output_dir, rng, sample_rng, label, checkpointer)
-
-    while threading.active_count() > 2:
-        print(f'{threading.active_count()=}')
-        time.sleep(1)
-    sink.close()
-    print('now send file')
-    send_file(0, args.output_dir, rng, sample_rng, label, checkpointer)
-    while threading.active_count() > 2:
-        print(f'{threading.active_count()=}')
-        time.sleep(1)
-    """
-
 
 if __name__ == "__main__":
     jax.distributed.initialize()
@@ -345,7 +297,7 @@ if __name__ == "__main__":
     # parser.add_argument("--resume",  action="store_true", default=False)
 
     parser.add_argument("--global-seed", type=int, default=0)
-    parser.add_argument("--batch-per-core", type=int, default=64)
+    parser.add_argument("--batch-per-core", type=int, default=128)
     parser.add_argument("--num-samples", type=int, default=50000000)
 
     test_convert(parser.parse_args())

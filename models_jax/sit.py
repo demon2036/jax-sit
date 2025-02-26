@@ -7,7 +7,8 @@ import flax.linen as nn
 import jax
 import jax.numpy as jnp
 
-use_fast_variance = False
+use_fast_variance = True
+dtype=jnp.bfloat16
 
 
 class MLP(nn.Module):
@@ -17,11 +18,11 @@ class MLP(nn.Module):
 
     @nn.compact
     def __call__(self, x):
-        x = nn.Dense(self.projector_dim, name='0')(x)
+        x = nn.Dense(self.projector_dim, name='0',dtype=dtype)(x)
         x = nn.swish(x)
-        x = nn.Dense(self.projector_dim, name='2')(x)
+        x = nn.Dense(self.projector_dim, name='2',dtype=dtype)(x)
         x = nn.swish(x)
-        x = nn.Dense(self.z_dim, name='4')(x)
+        x = nn.Dense(self.z_dim, name='4',dtype=dtype)(x)
         return x
 
 
@@ -40,9 +41,9 @@ class TimestepEmbedder(nn.Module):
     @nn.compact
     def __call__(self, t):
         t_freq = self.positional_embedding(t, dim=self.frequency_embedding_size, max_period=self.max_period)
-        t_emb = nn.Dense(self.hidden_size, name='0')(t_freq)
+        t_emb = nn.Dense(self.hidden_size, name='0',dtype=dtype)(t_freq)
         t_emb = nn.swish(t_emb)
-        t_emb = nn.Dense(self.hidden_size, name='2')(t_emb)
+        t_emb = nn.Dense(self.hidden_size, name='2',dtype=dtype)(t_emb)
         return t_emb
 
     @staticmethod
@@ -146,7 +147,7 @@ class Attention(nn.Module):
         self.head_dim = self.dim // self.num_heads
         self.scale = self.head_dim ** -0.5
 
-        self.qkv = nn.Dense(self.dim * 3, use_bias=self.qkv_bias)
+        self.qkv = nn.Dense(self.dim * 3, use_bias=self.qkv_bias,dtype=dtype)
         self.q_norm = nn.LayerNorm() if self.qk_norm else Identity()
         self.k_norm = nn.LayerNorm() if self.qk_norm else Identity()
 
@@ -222,8 +223,8 @@ class SiTBlock(nn.Module):
     @nn.compact
     def __call__(self, x, c):
         # LayerNorm without affine parameters
-        norm1 = nn.LayerNorm(use_scale=False, use_bias=False, epsilon=1e-6, use_fast_variance=use_fast_variance)
-        norm2 = nn.LayerNorm(use_scale=False, use_bias=False, epsilon=1e-6, use_fast_variance=use_fast_variance)
+        norm1 = nn.LayerNorm(use_scale=False, use_bias=False, epsilon=1e-6, use_fast_variance=use_fast_variance,dtype=dtype)
+        norm2 = nn.LayerNorm(use_scale=False, use_bias=False, epsilon=1e-6, use_fast_variance=use_fast_variance,dtype=dtype)
 
         # Attention and MLP
         attn = Attention(dim=self.hidden_size, num_heads=self.num_heads, qkv_bias=True, qk_norm=self.qk_norm,
