@@ -272,14 +272,10 @@ def test_convert(args):
                              samples_jax, labels, sink,))
         thread.start()
 
+    for thread in thread_writes:
+        thread.join()
 
 
-
-
-
-    while threading.active_count() > 3:
-        print(f'{threading.active_count()=}')
-        time.sleep(1)
 
     print('now send file')
     send_file(0, args.output_dir, rng, sample_rng=None, label=i, checkpointer=checkpointer)
