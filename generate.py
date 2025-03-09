@@ -271,6 +271,7 @@ def test_convert(args):
                          args=(
                              samples_jax, labels, sink,))
         thread.start()
+        thread_writes.append(thread)
 
     for thread in thread_writes:
         thread.join()
@@ -293,7 +294,7 @@ if __name__ == "__main__":
     # parser.add_argument("--output-dir", default="shard_path2")
     # parser.add_argument("--output-dir", default="gs://shadow-center-2b/imagenet-generated-100steps-cfg1.75")
 
-    parser.add_argument("--output-dir", default="gs://arm-central-2b/imagenet-generated-sit-250steps-100m")
+    parser.add_argument("--output-dir", default="gs://arm-central-2b/imagenet-generated-sit-250steps-300m")
     # parser.add_argument("--seed", type=int, default=7)
     # parser.add_argument("--sample-seed", type=int, default=24)
     # parser.add_argument("--cfg", type=float, default=1.5)
@@ -304,6 +305,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--global-seed", type=int, default=0)
     parser.add_argument("--batch-per-core", type=int, default=128)
-    parser.add_argument("--num-samples", type=int, default=100000000)
+    parser.add_argument("--num-samples", type=int, default=300000000)
 
     test_convert(parser.parse_args())

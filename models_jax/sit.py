@@ -7,8 +7,8 @@ import flax.linen as nn
 import jax
 import jax.numpy as jnp
 
-use_fast_variance = True
-dtype=jnp.bfloat16
+use_fast_variance = False
+dtype=jnp.float32
 
 
 class MLP(nn.Module):
