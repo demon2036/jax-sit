@@ -258,8 +258,8 @@ def test_convert(args):
 
     thread_writes=[]
 
-
-    for i in tqdm.tqdm(range(start_label,iteration)):
+    for i in tqdm.tqdm(range(start_label, iteration + 1), initial=start_label, total=iteration + 1):
+    # for i in tqdm.tqdm(range(start_label,iteration)):
         samples_jax, labels, rng = go(params_sit_jax, vae_params, rng)
 
         samples_jax = einops.rearrange(samples_jax, 'n b c h w -> (n b) h w c')
