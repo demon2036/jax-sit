@@ -242,14 +242,14 @@ def test_convert(args):
 
     checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
 
-    # ckpt = {
-    #     'rng': rng,
-    #     'label': 1
-    # }
-    # ckpt = checkpointer.restore(args.output_dir, item=ckpt)
-    # rng = ckpt['rng']
-    # start_label = ckpt['label']
-    start_label=0
+    ckpt = {
+        'rng': rng,
+        'label': 1
+    }
+    ckpt = checkpointer.restore(args.output_dir, item=ckpt)
+    rng = ckpt['rng']
+    start_label = ckpt['label']
+    # start_label=0
 
     thread_writes=[]
 
@@ -301,7 +301,7 @@ if __name__ == "__main__":
     parser.add_argument("--data-per-shard", type=int, default=8192)  #2048
     # parser.add_argument("--per-process-shards", type=int, default=400)
     # parser.add_argument("--per-device-batch", type=int, default=128)  #128
-    # parser.add_argument("--resume",  action="store_true", default=False)
+    parser.add_argument("--resume",  action="store_true", default=True)
 
     parser.add_argument("--global-seed", type=int, default=0)
     parser.add_argument("--batch-per-core", type=int, default=128)
