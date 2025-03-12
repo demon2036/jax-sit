@@ -169,14 +169,17 @@ def test_convert(args):
     ckpt = checkpointer.restore(f'{args.output_dir}/resume.json', item=ckpt)
     rng = ckpt['rng']
     start_label = ckpt['label']
-    print(rng)
-    print(rng.shape)
-    print(rng + jax.process_index())
-    rng = rng + jax.process_index()
-    print(rng.addressable_shards())
-    print(rng.is_fully_addressable)
-    print(rng.shape)
+    # print(rng)
+    # print(rng.shape)
+    # print(rng + jax.process_index())
+    # rng = rng + jax.process_index()
+    # print(rng.addressable_shards())
+    # print(rng.is_fully_addressable)
+    # print(rng.shape)
+
+    rng=jnp.split(rng,jax.process_count())[jax.process_index()]
     rng = shard_prng_key(rng)
+    print(rng)
 
     sampling_kwargs = dict(
         model=model_jax,
