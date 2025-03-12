@@ -252,6 +252,8 @@ def test_convert(args):
 
     rng=rng+ jax.process_index()
     rng = shard_prng_key(rng)
+    print(rng.addressable_shards())
+    print(rng.is_fully_addressable)
 
     # start_label=0
     print(rng.shape)
