@@ -250,6 +250,7 @@ def test_convert(args):
     rng = ckpt['rng']
     start_label = ckpt['label']
     # start_label=0
+    print(rng.shape)
 
     thread_writes=[]
 
