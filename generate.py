@@ -177,7 +177,7 @@ def test_convert(args):
     # print(rng.is_fully_addressable)
     # print(rng.shape)
 
-    rng=jnp.split(rng,jax.process_count())[jax.process_index()]
+    rng=jax.random.split(rng,jax.process_count())[jax.process_index()]
     rng = shard_prng_key(rng)
     print(rng)
 
