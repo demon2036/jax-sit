@@ -249,6 +249,10 @@ def test_convert(args):
     ckpt = checkpointer.restore(f'{args.output_dir}/resume.json', item=ckpt)
     rng = ckpt['rng']
     start_label = ckpt['label']
+
+    rng=rng+ jax.process_index()
+    rng = shard_prng_key(rng)
+
     # start_label=0
     print(rng.shape)
 
