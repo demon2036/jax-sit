@@ -170,6 +170,29 @@ def test_convert(args):
     rng = shard_prng_key(rng)
     total = 0
 
+
+    checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
+
+    ckpt = {
+        'rng': rng,
+        'label': 1
+    }
+    ckpt = checkpointer.restore(f'{args.output_dir}/resume.json', item=ckpt)
+    rng = ckpt['rng']
+    start_label = ckpt['label']
+
+    rng=rng+ jax.process_index()
+    print(rng.addressable_shards())
+    print(rng.is_fully_addressable)
+    print(rng.shape)
+    rng = shard_prng_key(rng)
+
+
+
+
+
+
+
     sampling_kwargs = dict(
         model=model_jax,
         # latents=z,
@@ -240,23 +263,9 @@ def test_convert(args):
         # maxsize=shard_size,
     )
 
-    checkpointer = ocp.AsyncCheckpointer(ocp.PyTreeCheckpointHandler())
-
-    ckpt = {
-        'rng': rng,
-        'label': 1
-    }
-    ckpt = checkpointer.restore(f'{args.output_dir}/resume.json', item=ckpt)
-    rng = ckpt['rng']
-    start_label = ckpt['label']
-
-    rng=rng+ jax.process_index()
-    rng = shard_prng_key(rng)
-    print(rng.addressable_shards())
-    print(rng.is_fully_addressable)
 
     # start_label=0
-    print(rng.shape)
+
 
     thread_writes=[]
 
