@@ -116,8 +116,8 @@ class CustomShardWriter(wds.ShardWriter):
 
 def create_state():
     vae_flax, vae_params = FlaxAutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-ema", local_files_only=False,
-                                                             local_dir='vae',
-                                                             cache_dir='vae_flax', from_pt=True)
+                                                             local_dir='/root/vae',
+                                                             cache_dir='/root/vae_flax', from_pt=True)
 
     vae_params = jax.tree_util.tree_map(lambda x: jnp.asarray(np.array(x)), vae_params)
 
