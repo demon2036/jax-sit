@@ -246,7 +246,7 @@ def test_convert(args):
         'rng': rng,
         'label': 1
     }
-    ckpt = checkpointer.restore(args.output_dir, item=ckpt)
+    ckpt = checkpointer.restore(f'{args.output_dir}/resume.json', item=ckpt)
     rng = ckpt['rng']
     start_label = ckpt['label']
     # start_label=0
