@@ -243,7 +243,7 @@ def test_convert(args):
         pattern=shard_filename,
         maxcount=data_per_shard,
         maxsize=3e10,
-        start_shard=jax.process_index()+(3839//jax.process_count())*jax.process_count(),
+        start_shard=jax.process_index()+(4159//jax.process_count())*jax.process_count(),
         verbose=jax.process_index() == 0,
         progress_count=jax.process_count()
         # maxsize=shard_size,
